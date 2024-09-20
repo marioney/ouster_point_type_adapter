@@ -12,9 +12,12 @@ namespace ouster_point_type_adapter
 OusterPointTypeAdapter::OusterPointTypeAdapter(const rclcpp::NodeOptions & options)
 : Node("ouster_point_type_adapter", options)
 {
+  auto qos_profile = rclcpp::QoS(rclcpp::KeepLast(1));
+  qos_profile.reliability(rmw_qos_reliability_policy_t::RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT);
+
   subscription_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-    "input", 10, std::bind(&OusterPointTypeAdapter::pointCloudCallback, this, std::placeholders::_1));
-  publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("output", 10);
+    "input", qos_profile, std::bind(&OusterPointTypeAdapter::pointCloudCallback, this, std::placeholders::_1));
+  publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("output", qos_profile);
 }
 
 // based on https://github.com/autowarefoundation/autoware.universe/issues/4978#issuecomment-1971777511
